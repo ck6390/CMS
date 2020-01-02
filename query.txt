@@ -1,0 +1,51 @@
+ALTER TABLE `inventry_stocks` ADD `bill_add` VARCHAR(1000) NOT NULL AFTER `bill_ref_no`;
+
+<?php  
+							                        $ext = $user->saleRegister;                    
+							                        $file_ext = pathinfo($ext ,PATHINFO_EXTENSION); 
+							                        $strLower = strtolower($file_ext);                        
+							                           if($strLower=="jpg" || $strLower=="png" || $strLower=="jpeg" || $strLower=="gif")
+							                           {
+							                               $icon="fa-picture-o";
+							                           }  
+							                           elseif ($strLower=="pdf") {
+							                              $icon="fa-file-pdf-o";
+							                           }
+							                           elseif ($strLower=="docx") {
+							                             $icon="fa-file-word-o";
+							                           }
+							                           elseif ($strLower=="xlsx" || $strLower=="csv" || $strLower=="xlx") {
+							                             $icon="fa-file-excel-o";
+							                           }							                                                 
+							                   ?>
+
+
+SELECT `STO`.`id`, `STO`.`stock_name`, sum(INV.quantity), `INV`.`sell_price`
+FROM `stocks` AS `STO`
+LEFT JOIN `inventry_stocks` as `INV` ON `STO`.`id` = `INV`.`stock_id`
+WHERE `INV`.`stock_id` = `STO`.`id`
+GROUP BY `INV`.`stock_id`
+ORDER BY `INV`.`stock_id`
+
+
+SELECT `STO`.`id`, `STO`.`stock_name`, sum(INV.quantity), `INV`.`sell_price`
+FROM `stocks` AS `STO`
+LEFT JOIN `inventry_stocks` as `INV` ON (STO.id = INV.stock_id AND STO.id < INV.id)
+WHERE `INV`.`stock_id` = `STO`.`id`
+GROUP BY `INV`.`stock_id`
+ORDER BY `INV`.`stock_id`
+
+
+SELECT `STO`.`id`, `STO`.`stock_name`, sum(INV.quantity), `INV`.`sell_price`, 
+(SELECT SUM(quantity) FROM `inventry_stocks` as I WHERE INV.stock_id = I.stock_id GROUP BY I.`stock_id` ORDER BY I.`stock_id` ASC ) as qua
+FROM `stocks` AS `STO`
+LEFT JOIN `inventry_stocks` as `INV` ON (STO.id = INV.stock_id AND STO.id < INV.id)
+WHERE `INV`.`stock_id` = `STO`.`id`
+GROUP BY `INV`.`stock_id`
+ORDER BY `INV`.`stock_id`
+
+<!-- 10/12/2019 -->
+
+ALTER TABLE `inventry_stocks` ADD `available_quantity` INT(100) NOT NULL AFTER `quantity`;
+
+<!-- end -->
